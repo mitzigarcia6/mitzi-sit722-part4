@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: book-catalog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: book-catalog
+  template:
+    metadata:
+      labels:
+        app: book-catalog
+    spec:
+      containers:
+      - name: book-catalog
+        image: sit722containerregistry.azurecr.io/book-catalog:1
+        ports:
+        - containerPort: 8000
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: DATABASE_URL
+          value: postgresql://mitzi_sit722_part4_ivq6_user:ZeFqULHB0WDEMQxkKnqtQFB27gIqYUnS@dpg-crr08md6l47c73cb1p20-a.oregon-postgres.render.com/mitzi_sit722_part4_ivq6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: book-catalog
+spec:
+  selector:
+    app: book-catalog
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8088
+      targetPort: 8000
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: inventory-management
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: inventory-management
+  template:
+    metadata:
+      labels:
+        app: inventory-management
+    spec:
+      containers:
+      - name: inventory-management
+        image: sit722containerregistry.azurecr.io/inventory-management:1
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8001
+        env:
+        - name: DATABASE_URL
+          value: postgresql://mitzi_sit722_part4_ivq6_user:ZeFqULHB0WDEMQxkKnqtQFB27gIqYUnS@dpg-crr08md6l47c73cb1p20-a.oregon-postgres.render.com/mitzi_sit722_part4_ivq6
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: inventory-management
+spec:
+  selector:
+    app: inventory-management
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 8089
+      targetPort: 8001
